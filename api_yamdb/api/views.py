@@ -18,7 +18,10 @@ from reviews.models import (
     User,
     models,
 )
+
 from .filters import TitleFilter
+from .mixins import ListRetrieveCreateDestroyViewSet
+
 from .permissions import (
     AdminOnly,
     IsAdminOrReadOnly,
@@ -36,14 +39,6 @@ from .serializers import (
     TitleSerializer,
     TitleReadOnlySerializer,
 )
-from .permissions import (
-    AdminOnly,
-    IsAdminOrReadOnly,
-    AdminOnly,
-    IsAdOrModOrAuthorOrReadOnly,
-)
-from .filters import TitleFilter
-from .mixins import ListRetrieveCreateDestroyViewSet
 
 
 class ObtainTokenView(views.APIView):
