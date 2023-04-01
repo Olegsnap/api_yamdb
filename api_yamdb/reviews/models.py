@@ -28,6 +28,7 @@ class User(AbstractUser):
         max_length=10,
         blank=True,
         choices=USER_ROLE_CHOISES,
+        default='user'
     )
 
     class Meta:
