@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
-    validate_slug,
 )
 from django.db import models
 from model_utils import Choices
