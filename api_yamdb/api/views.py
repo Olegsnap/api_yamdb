@@ -69,11 +69,12 @@ class SingUpView(views.APIView):
     def post(self, request, format=None):
         """Обработка POST запроса"""
         serializer = self.serializer_class(data=request.data)
-        email = serializer.validated_data.get("email")
-        username = serializer.data.get("username")
-        user, _ = User.objects.get_or_create(
-            email=email, username=username
-        )
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data.get("email")
+            username = serializer.data.get("username")
+            user, _ = User.objects.get_or_create(
+                email=email, username=username
+            )
         password = default_token_generator.make_token(user)
         send_mail(
             settings.EMAIL_SUBJECT,
@@ -87,8 +88,6 @@ class SingUpView(views.APIView):
         return Response(
             serializer.data, status=status.HTTP_200_OK
         )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsersListViewSet(viewsets.ModelViewSet):
@@ -211,9 +210,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
     def get_queryset(self):
-        title_id = self.kwargs.get("title_id")
         review_id = self.kwargs.get("review_id")
-        return Comment.objects.filter(title=title_id, review=review_id)
+        return Comment.objects.filter(review=review_id)
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get("review_id"))
