@@ -54,7 +54,11 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == USER_ROLE_CHOISES.admin or self.is_superuser
+        return self.role == USER_ROLE_CHOISES.admin
+
+    @property
+    def is_superuser(self):
+        return self.role == USER_ROLE_CHOISES.admin
 
 
 class Category(models.Model):
