@@ -28,6 +28,7 @@ class User(AbstractUser):
         max_length=10,
         blank=True,
         choices=USER_ROLE_CHOISES,
+        default='user'
     )
 
     class Meta:
@@ -70,8 +71,7 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         "Слаг категории",
-        unique=True,
-        validators=[validate_slug],
+        unique=True
     )
 
     class Meta:
@@ -94,7 +94,7 @@ class Genre(models.Model):
         max_length=256,
     )
     slug = models.SlugField(
-        "Слаг жанра", unique=True, validators=[validate_slug]
+        "Слаг жанра", unique=True
     )
 
     class Meta:
