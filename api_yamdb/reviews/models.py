@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
-    validate_slug,
 )
 from django.db import models
 from model_utils import Choices
@@ -27,6 +26,7 @@ class User(AbstractUser):
         "Пользовательская роль",
         max_length=10,
         blank=True,
+        default="user",
         choices=USER_ROLE_CHOISES,
     )
 
@@ -70,8 +70,7 @@ class Category(models.Model):
     )
     slug = models.SlugField(
         "Слаг категории",
-        unique=True,
-        validators=[validate_slug],
+        unique=True
     )
 
     class Meta:
@@ -94,7 +93,7 @@ class Genre(models.Model):
         max_length=256,
     )
     slug = models.SlugField(
-        "Слаг жанра", unique=True, validators=[validate_slug]
+        "Слаг жанра", unique=True
     )
 
     class Meta:
