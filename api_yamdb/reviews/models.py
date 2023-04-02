@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
-    validate_slug,
 )
 from django.db import models
 from model_utils import Choices
@@ -27,8 +26,8 @@ class User(AbstractUser):
         "Пользовательская роль",
         max_length=10,
         blank=True,
+        default="user",
         choices=USER_ROLE_CHOISES,
-        default='user'
     )
 
     class Meta:
