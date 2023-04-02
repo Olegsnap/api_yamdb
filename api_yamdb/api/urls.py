@@ -32,7 +32,7 @@ router.register(
 )
 
 urlpatterns = [
-    path("v1/auth/signup/", SingUpView.as_view(), name="singup"),
+    path("v1/auth/signup/", SingUpView.as_view(), name="signup"),
     path(
         "v1/auth/token/",
         ObtainTokenView.as_view(),
