@@ -79,9 +79,12 @@ class SingUpSerializer(serializers.ModelSerializer):
         2. Если пользователя нет проверяем что username и email уникальны.
         """
         try:
-            get_object_or_404(
-                User, email=data["email"], username=data["username"]
-            )
+            qs = User.objects.filter(
+                email=data["email"],
+                username=data["username"]
+            ).exists()
+            if qs is False:
+                raise Http404
         except Http404:
             check_unique_email_and_name(data)
         return data
@@ -132,7 +135,6 @@ class AdminCreateSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     """Сериалайзер профиля пользователя"""
-
     class Meta:
         fields = (
             "email",
@@ -144,8 +146,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("role",)
         extra_kwargs = {
+            "email": {
+                "required": True,
+                "validators": [
+                    validators.UniqueValidator(queryset=User.objects.all())
+                ],
+            },
             "username": {
-                "validators": [UsernameValidator()],
+                "required": True,
+                "validators": [
+                    UsernameValidator(),
+                    validators.UniqueValidator(queryset=User.objects.all()),
+                ],
             },
         }
         model = User
@@ -185,7 +197,6 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(), slug_field="slug", many=True
     )
-    rating = serializers.IntegerField(required=False)
 
     class Meta:
         fields = "__all__"
