@@ -34,7 +34,6 @@ class User(AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["email", "username"],
                 name="unique_pair",
             ),
         ]
@@ -56,7 +55,7 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == USER_ROLE_CHOISES.admin
+        return self.role == USER_ROLE_CHOISES.admin or self.is_superuser
 
 
 class Category(models.Model):
