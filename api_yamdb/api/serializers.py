@@ -123,15 +123,6 @@ class AdminCreateSerializer(serializers.ModelSerializer):
         }
         model = User
 
-    def create(self, validated_data):
-        """
-        Создание объекта User роль по-умолчанию 'user'.
-        """
-        if validated_data.get("role") is None:
-            validated_data["role"] = "user"
-
-        return super().create(validated_data)
-
 
 class ProfileSerializer(serializers.ModelSerializer):
     """Сериалайзер профиля пользователя"""
