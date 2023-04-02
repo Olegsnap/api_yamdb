@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework import filters, status, views, viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -57,10 +56,6 @@ class ObtainTokenView(views.APIView):
                 {"token": serializer.validated_data.get("access")},
                 status=status.HTTP_200_OK,
             )
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
 
 
 class SingUpView(views.APIView):
@@ -74,25 +69,24 @@ class SingUpView(views.APIView):
     def post(self, request, format=None):
         """Обработка POST запроса"""
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            email = serializer.data.get("email")
-            username = serializer.data.get("username")
-            user, _ = User.objects.get_or_create(
-                email=email, username=username
-            )
-            password = default_token_generator.make_token(user)
-            send_mail(
-                settings.EMAIL_SUBJECT,
-                f"confirmation_code : {password}",
-                settings.EMAIL_SENDER,
-                (f"{email}",),
-            )
-            user.set_password(password)
-            user.save()
+        email = serializer.validated_data.get("email")
+        username = serializer.data.get("username")
+        user, _ = User.objects.get_or_create(
+            email=email, username=username
+        )
+        password = default_token_generator.make_token(user)
+        send_mail(
+            settings.EMAIL_SUBJECT,
+            f"confirmation_code : {password}",
+            settings.EMAIL_SENDER,
+            (email,),
+        )
+        user.set_password(password)
+        user.save()
 
-            return Response(
-                SingUpSerializer(user).data, status=status.HTTP_200_OK
-            )
+        return Response(
+            serializer.data, status=status.HTTP_200_OK
+        )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -114,7 +108,6 @@ class UsersListViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
     filter_backends = (filters.SearchFilter,)
     search_fields = ("username",)
-    pagination_class = LimitOffsetPagination
 
     @action(
         detail=False,
@@ -147,7 +140,6 @@ class CategoryViewSet(ListRetrieveCreateDestroyViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = CategorySerializer
     queryset = Category.objects.all()
-    pagination_class = LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ["name", "slug"]
     lookup_field = "slug"
@@ -164,7 +156,6 @@ class GenreViewSet(ListRetrieveCreateDestroyViewSet):
     permission_classes = [IsAdminOrReadOnly]
     serializer_class = GenreSerializer
     queryset = Genre.objects.all()
-    pagination_class = LimitOffsetPagination
     filter_backends = [filters.SearchFilter]
     search_fields = ["name", "slug"]
     lookup_field = "slug"
@@ -190,7 +181,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
         rating=Round(models.Avg("reviews__score"))
     )
-    pagination_class = LimitOffsetPagination
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
@@ -204,11 +194,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdOrModOrAuthorOrReadOnly]
     serializer_class = ReviewSerializer
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
-        get_object_or_404(Title, pk=title_id)
         return Review.objects.filter(title=title_id)
 
     def perform_create(self, serializer):
@@ -221,14 +209,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdOrModOrAuthorOrReadOnly]
     serializer_class = CommentSerializer
-    pagination_class = LimitOffsetPagination
 
     def get_queryset(self):
         title_id = self.kwargs.get("title_id")
         review_id = self.kwargs.get("review_id")
-        get_object_or_404(Title, pk=title_id)
-        get_object_or_404(Review, pk=review_id)
-        return Comment.objects.filter(review=review_id)
+        return Comment.objects.filter(title=title_id, review=review_id)
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get("review_id"))
