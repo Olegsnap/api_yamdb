@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, validators, serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -78,14 +77,11 @@ class SingUpSerializer(serializers.ModelSerializer):
         1. Ищем пользователя в базе если находим валидация успешна.
         2. Если пользователя нет проверяем что username и email уникальны.
         """
-        try:
-            qs = User.objects.filter(
-                email=data["email"],
-                username=data["username"]
-            ).exists()
-            if qs is False:
-                raise Http404
-        except Http404:
+        qs = User.objects.filter(
+            email=data["email"],
+            username=data["username"]
+        ).exists()
+        if qs is False:
             check_unique_email_and_name(data)
         return data
 

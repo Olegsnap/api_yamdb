@@ -26,17 +26,11 @@ class User(AbstractUser):
         "Пользовательская роль",
         max_length=10,
         blank=True,
-        default="user",
+        default=USER_ROLE_CHOISES.user,
         choices=USER_ROLE_CHOISES,
     )
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["email", "username"],
-                name="unique_pair",
-            ),
-        ]
         ordering = ["username"]
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
