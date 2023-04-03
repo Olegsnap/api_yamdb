@@ -71,7 +71,7 @@ class SingUpView(views.APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             email = serializer.validated_data.get("email")
-            username = serializer.data.get("username")
+            username = serializer.validated_data.get("username")
             user, _ = User.objects.get_or_create(
                 email=email, username=username
             )
@@ -86,7 +86,7 @@ class SingUpView(views.APIView):
         user.save()
 
         return Response(
-            serializer.data, status=status.HTTP_200_OK
+            serializer.validated_data, status=status.HTTP_200_OK
         )
 
 
@@ -125,7 +125,7 @@ class UsersListViewSet(viewsets.ModelViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.validated_data)
 
 
 class CategoryViewSet(ListRetrieveCreateDestroyViewSet):
